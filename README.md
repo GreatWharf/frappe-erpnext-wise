@@ -48,11 +48,13 @@ Using Docker or Dokploy? Follow the [deployment instructions](docs/operations.md
 ## Connect
 
 1. In Wise Business, open **Your Account → Connect and manage apps → API tokens**. Create a **read-only token**.
-2. Open **Wise Bank Feed** in ERPNext’s apps screen, or go to `/desk/wise-setup`.
-3. Create a connection. Choose your company, token, start date and **Activity Review** mode.
-4. Save → **Discover profiles** → select your business → **Discover accounts**.
-5. Map only the accounts you want to an ERPNext Bank Account of the same currency.
-6. Enable the connection → **Sync Now** → open **Activity inbox** to review.
+2. Open **Wise Bank Feed** on the ERPNext home screen. It is also available in **Edit layout** and the **Banking** sidebar.
+3. **Connect:** enter your company, read-only token and history start date.
+4. **Business:** select a discovered business profile; its ID is shown beside the name.
+5. **Accounts:** link the balances you want to ERPNext Bank Accounts in the same currency. Leave the rest blank.
+6. **Sync:** review your selection and click **Start activity sync**, then open the **Activity inbox**.
+
+The wizard saves progress as you go. Return to it to resume setup, check sync status, or pause and edit your accounts.
 
 Configuration and activity review require the **System Manager** role. Pause a connection before changing its mappings.
 

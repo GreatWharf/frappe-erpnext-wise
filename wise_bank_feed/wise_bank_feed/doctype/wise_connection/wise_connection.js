@@ -1,5 +1,6 @@
 frappe.ui.form.on('Wise Connection', {
   refresh(frm) {
+    frm.add_custom_button(__('Guided setup'), () => frappe.set_route('wise-setup'));
     if (frm.is_new()) return;
     frm.add_custom_button(__('Discover profiles'), async () => {
       if (frm.is_dirty()) { frappe.msgprint(__('Save first.')); return; }

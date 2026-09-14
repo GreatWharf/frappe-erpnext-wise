@@ -1,0 +1,67 @@
+{
+  "doctype": "Workspace Sidebar",
+  "name": "Wise Bank Feed",
+  "title": "Wise Bank Feed",
+  "app": "wise_bank_feed",
+  "module": "Wise Bank Feed",
+  "standard": 1,
+  "header_icon": "landmark",
+  "items": [
+    {
+      "type": "Link",
+      "label": "Connect Wise",
+      "link_type": "Page",
+      "link_to": "wise-setup",
+      "icon": "plug",
+      "child": 0
+    },
+    {
+      "type": "Link",
+      "label": "Activity inbox",
+      "link_type": "DocType",
+      "link_to": "Wise Activity",
+      "icon": "list",
+      "child": 0
+    },
+    {
+      "type": "Link",
+      "label": "Banking app",
+      "link_type": "URL",
+      "url": "/banking",
+      "icon": "landmark",
+      "child": 0
+    },
+    {
+      "type": "Link",
+      "label": "Bank transactions",
+      "link_type": "DocType",
+      "link_to": "Bank Transaction",
+      "icon": "arrow-left-right",
+      "child": 0
+    },
+    {
+      "type": "Link",
+      "label": "Account mappings",
+      "link_type": "DocType",
+      "link_to": "Wise Account Map",
+      "icon": "link",
+      "child": 0
+    },
+    {
+      "type": "Link",
+      "label": "Sync logs",
+      "link_type": "DocType",
+      "link_to": "Wise Sync Log",
+      "icon": "list",
+      "child": 0
+    },
+    {
+      "type": "Link",
+      "label": "Connection settings",
+      "link_type": "DocType",
+      "link_to": "Wise Connection",
+      "icon": "settings",
+      "child": 0
+    }
+  ]
+}

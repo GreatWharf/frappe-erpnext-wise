@@ -39,7 +39,7 @@
       "fieldname": "profile_id",
       "label": "Profile Id",
       "fieldtype": "Data",
-      "description": "Use Discover profiles after saving."
+      "description": "Choose your business in Connect Wise. This form is for advanced settings."
     },
     {
       "fieldname": "mode",

@@ -12,7 +12,10 @@ def check_versions():
 
 
 def after_migrate():
+    from .navigation import ensure_navigation
+
     check_versions()
+    ensure_navigation()
     create_custom_fields(
         {
             "Bank Transaction": [
