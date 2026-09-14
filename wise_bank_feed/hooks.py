@@ -6,7 +6,7 @@ app_email = ""
 app_license = "MIT"
 required_apps = ["erpnext"]
 app_home = "/desk/wise-setup"
-app_logo_url = "/assets/wise_bank_feed/bank.svg"
+app_logo_url = "/assets/wise_bank_feed/images/wise-icon.png"
 add_to_apps_screen = [
     dict(
         name=app_name,

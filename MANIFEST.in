@@ -1,1 +1,1 @@
-recursive-include wise_bank_feed *.json *.js *.txt *.svg
+recursive-include wise_bank_feed *.json *.js *.txt *.svg *.png
