@@ -20,6 +20,6 @@ frappe.ui.form.on('Wise Connection', {
     frm.add_custom_button(__('Sync logs'), () => frappe.set_route('List','Wise Sync Log',{connection:frm.doc.name}));
     frm.dashboard.set_headline_alert(frm.doc.mode === 'Activity Review'
       ? __('Activities sync automatically. Booked entries require review; this mode is not a complete automatic bank feed.')
-      : __('Statement imports need Wise statement API access. An SCA error pauses imports without advancing history.'));
+      : __('Personal-token statements require a supported account region (US, CA, AU, NZ, SG or MY). Access errors leave history unchanged; check Sync logs.'));
   }
 });

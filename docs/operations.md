@@ -1,6 +1,6 @@
 # Wise Bank Feed for ERPNext v16
 
-Independent, MIT-licensed Frappe app. Direct Wise personal-token access; no aggregator subscription, payment creation, bank writes, or direct GL posting. Initial release **0.1.0**. Requires Python 3.14, Frappe/ERPNext v16 and MariaDB, matching the existing Revolut app. The apps coexist and have separate DocTypes and provenance fields.
+Independent, MIT-licensed Frappe app. Direct Wise personal-token access; no aggregator subscription, payment creation, bank writes, or direct GL posting. Initial release **0.1.1**. Requires Python 3.14, Frappe/ERPNext v16 and MariaDB, matching the existing Revolut app. The apps coexist and have separate DocTypes and provenance fields.
 
 ## What works in each mode
 
@@ -9,13 +9,13 @@ Independent, MIT-licensed Frappe app. Direct Wise personal-token access; no aggr
 | Activity Review (default) | Discovers balances and refreshes activities every 15 minutes | Created only after an administrator confirms the exact booked account, amount, direction and date |
 | Statements | Imports COMPACT JSON statement lines for enabled maps | Automatically creates and submits standard ERPNext Bank Transactions |
 
-**This is not yet a complete automatic bank-reconciliation feed for UK personal tokens.** The user's live test returned HTTP 200 for profiles, activities and balances, but HTTP 403 with an SCA challenge for statements. Activity summaries contain formatted primary/secondary amounts which do not establish all booked account legs or fees. We intentionally do not guess. No claim is made that the Activities endpoint exposes every ledger event. Test a representative sample of card payments, refunds, transfers and FX against Wise before relying on coverage.
+**UK/European personal-token accounts use Activity Review, not automatic statement imports.** Wise’s [current personal-token guide](https://docs.wise.com/guides/developer/auth-and-security/personal-api-token) supports statement retrieval only for accounts based in the US, Canada, Australia, New Zealand, Singapore and Malaysia. The user's live test returned HTTP 200 for profiles, activities and balances, but HTTP 403 with an SCA challenge for statements. Activity summaries contain formatted primary/secondary amounts which do not establish all booked account legs or fees. We intentionally do not guess. No claim is made that the Activities endpoint exposes every ledger event. Test a representative sample of card payments, refunds, transfers and FX against Wise before relying on coverage.
 
 The module does not implement unsupported private website endpoints, legacy SCA signing, interactive SCA, OAuth partner onboarding or Wise webhook subscriptions. This version polls the public API. A free connector does not remove Wise's authentication restrictions. A personal API token does not refresh; replace it when revoked. Token retrieval is server-side via Frappe Password fields, never returned by setup endpoints.
 
 ## Browser setup
 
-1. In Wise create a **read-only** personal API token for your business. Do not paste it into chat or commit it.
+1. In Wise Business go to **Your Account → Connect and manage apps → API tokens** and create a **read-only** token. Do not paste it into chat or commit it.
 2. In ERPNext open **Wise Bank Feed** from the apps screen, or `/desk/wise-setup`.
 3. Create a connection with your Company, token, timezone, start date and mode. Use Activity Review for the tested UK configuration. Save.
 4. Click **Discover profiles**, choose the Business profile ID, then **Discover accounts**. The app shows balance ID, name, currency, balance type, investment state and reported available amount. Names do not imply account purpose; UUIDs/IDs are not guessed.
@@ -56,8 +56,8 @@ These are server deployment operations. An arbitrary app cannot install its own 
 Use the same pinned ERPNext v16 image you currently deploy as `BASE_IMAGE`, including your Revolut app if present. The example extends it; it does not replace your database, Redis, sites volume or networking. Build from this repository root:
 
 ```sh
-docker build -f docker/Dockerfile --build-arg BASE_IMAGE=YOUR_CURRENT_PINNED_IMAGE -t YOUR_REGISTRY/erpnext-with-wise:0.1.0 .
-docker push YOUR_REGISTRY/erpnext-with-wise:0.1.0
+docker build -f docker/Dockerfile --build-arg BASE_IMAGE=YOUR_CURRENT_PINNED_IMAGE -t YOUR_REGISTRY/erpnext-with-wise:0.1.1 .
+docker push YOUR_REGISTRY/erpnext-with-wise:0.1.1
 ```
 
 The sample assumes your base image includes Node and build tools. If it is runtime-only, add this repository to the `apps.json` used by your existing frappe_docker custom-image build instead. Preserve existing apps, including Revolut. No GitHub Actions are required. Do not use a made-up release tag or switch your existing ERPNext major version.
@@ -80,7 +80,7 @@ Enable the site's scheduler, run scheduler service plus Redis queue and a worker
 
 Back up database, private files and site configuration/encryption key. Rebuild the shared image from the new source, refresh shared assets/apps list, run the serialized migration initializer, then restart services. Never upgrade only backend while workers use old code.
 
-- **403 with SCA:** statement access requires additional authentication. Activity Review remains a separate mode; this app cannot authorize SCA automatically. Pause a Statements connection until resolved.
+- **403 with SCA:** check the personal-token region restrictions above; statement access requires additional authentication. Activity Review remains a separate mode; this app cannot authorize SCA automatically. Pause a Statements connection until resolved.
 - **401:** replace the revoked/incorrect token. Check Production vs Sandbox.
 - **No new records:** check date range, profile, enabled state, scheduler/long worker and Sync Log. A successful empty activity page is not proof no money moved.
 - **Schema/validation error:** checkpoint remains unchanged. Compare source schema and account currency; use the local access test for diagnosis without sharing tokens. Logs intentionally omit raw response/error text.

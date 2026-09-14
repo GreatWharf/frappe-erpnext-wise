@@ -30,9 +30,10 @@
     },
     {
       "fieldname": "api_token",
-      "label": "Api Token",
+      "label": "API Token",
       "fieldtype": "Password",
-      "reqd": 1
+      "reqd": 1,
+      "description": "Use a read-only token from Wise Business \u2192 Your Account \u2192 Connect and manage apps \u2192 API tokens."
     },
     {
       "fieldname": "profile_id",
@@ -47,7 +48,7 @@
       "options": "Activity Review\nStatements",
       "default": "Activity Review",
       "reqd": 1,
-      "description": "Activity Review syncs summaries for review. Statements automatically imports authoritative booked lines when API access is available. Immutable after source data exists."
+      "description": "UK/European personal tokens: use Activity Review. Wise supports personal-token statements for US, CA, AU, NZ, SG and MY accounts. Mode is fixed after account discovery."
     },
     {
       "fieldname": "enabled",

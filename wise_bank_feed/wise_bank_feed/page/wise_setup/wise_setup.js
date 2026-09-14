@@ -36,7 +36,7 @@
     button(actions, 'Connections', () => frappe.set_route('List', 'Wise Connection'));
     const note = $('<div class="wise-note"></div>').appendTo(content);
     $('<strong></strong>').text(__('Activity review or automatic statements?')).appendTo(note);
-    $('<p></p>').text(__('Activity Review collects summaries every 15 minutes. Verify booked amounts, fees and dates in Wise before creating bank entries. Automatic imports need statement API access; a personal token may not provide it.')).appendTo(note);
+    $('<p></p>').text(__('Activity Review collects summaries every 15 minutes. Verify booked amounts, fees and dates in Wise before creating bank entries. UK and European personal-token accounts must use Activity Review. Wise limits personal-token statement access to US, CA, AU, NZ, SG and MY accounts.')).appendTo(note);
     const steps = $('<ol class="wise-steps"></ol>').appendTo(content);
     [
       [__('Connect your business'), __('Create a connection with your company, read-only Wise token and start date. Save, then Discover profiles and choose your business.')],

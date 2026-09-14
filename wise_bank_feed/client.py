@@ -46,6 +46,11 @@ class WiseClient:
                     timeout=(10, 30),
                     allow_redirects=False,
                 )
+            except requests.ConnectionError, requests.Timeout:
+                if attempt < 2:
+                    time.sleep(2**attempt)
+                    continue
+                raise WiseError("Wise network request failed; retry later.") from None
             except requests.RequestException:
                 raise WiseError("Wise network request failed; retry later.") from None
             if r.status_code in (429, 500, 502, 503, 504) and attempt < 2:
@@ -91,13 +96,17 @@ class WiseClient:
         seen = set()
         for _ in range(100):
             data = self.get(f"/profiles/{self.ident(profile)}/activities", dict(params))
-            if not isinstance(data, dict) or not isinstance(data.get("activities"), list):
+            if (
+                not isinstance(data, dict)
+                or not isinstance(data.get("activities"), list)
+                or "cursor" not in data
+            ):
                 raise WiseError("Unexpected activity schema.")
             yield from data["activities"]
             cursor = data.get("cursor")
-            if not cursor:
+            if cursor is None:
                 return
-            if not isinstance(cursor, str) or cursor in seen:
+            if not isinstance(cursor, str) or not cursor or cursor in seen:
                 raise WiseError("Wise pagination did not advance.")
             seen.add(cursor)
             params["nextCursor"] = cursor

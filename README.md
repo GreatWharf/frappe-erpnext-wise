@@ -25,7 +25,9 @@ Built for our internal use at Great Wharf and shared for others to use and impro
 | **Activity Review** — default | Review collected activity, confirm the booked amount, fees, account and date, then create a bank entry. |
 | **Statements** | Automatically imports statement lines when your Wise token has statement API access. |
 
-**A personal API token does not guarantee statement access.** Wise may require additional authentication (SCA), which this app does not handle. Activity summaries are not a complete bank statement; verify them against Wise before booking.
+**UK or European Wise account? Use Activity Review.** Wise’s [personal-token guide](https://docs.wise.com/guides/developer/auth-and-security/personal-api-token) limits statement retrieval to accounts based in the **US, Canada, Australia, New Zealand, Singapore and Malaysia**. This app does not implement additional authentication (SCA) or partner access.
+
+Activity summaries are not a complete bank statement; verify them against Wise before booking.
 
 - No payments, Wise account changes or direct general-ledger posting.
 - Initial release: validate your account’s coverage on a staging site.
@@ -45,7 +47,7 @@ Using Docker or Dokploy? Follow the [deployment instructions](docs/operations.md
 
 ## Connect
 
-1. Create a **read-only token** in Wise Business.
+1. In Wise Business, open **Your Account → Connect and manage apps → API tokens**. Create a **read-only token**.
 2. Open **Wise Bank Feed** in ERPNext’s apps screen, or go to `/desk/wise-setup`.
 3. Create a connection. Choose your company, token, start date and **Activity Review** mode.
 4. Save → **Discover profiles** → select your business → **Discover accounts**.
@@ -59,6 +61,7 @@ Configuration and activity review require the **System Manager** role. Pause a c
 - [Setup, data coverage and operations](docs/operations.md)
 - [Troubleshooting](docs/operations.md#upgrades-troubleshooting-and-uninstall)
 - [Report an issue](https://github.com/GreatWharf/erpnext_wise/issues) — leave out tokens and financial data.
-- Run tests: `python -m pytest`
+- Run tests: `python -m pytest` — [test coverage and live-testing limits](docs/verification.md).
+- GitHub Actions runs tests, lint, JavaScript syntax checks and packaging on each push and pull request.
 
 [MIT license](LICENSE). Wise and ERPNext logos belong to their respective owners; see [logo sources](docs/images/README.md).

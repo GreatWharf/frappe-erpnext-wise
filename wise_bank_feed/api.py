@@ -96,6 +96,8 @@ def create_reviewed_booking(
     money = amount(value)
     if money <= 0 or direction not in ("Deposit", "Withdrawal"):
         frappe.throw("Use a positive booked amount and direction.")
+    if not booking_date:
+        frappe.throw("Confirm the booked date from Wise.")
     if getdate(booking_date) > getdate(today()):
         frappe.throw("Booking date cannot be in the future.")
     identity = key(c.environment, c.profile_id, m.balance_id, "reviewed", activity_doc.source_key, direction)
