@@ -1,0 +1,114 @@
+{
+  "doctype": "DocType",
+  "name": "Wise Activity",
+  "module": "Wise Bank Feed",
+  "autoname": "hash",
+  "engine": "InnoDB",
+  "fields": [
+    {
+      "fieldname": "connection",
+      "label": "Connection",
+      "fieldtype": "Link",
+      "options": "Wise Connection",
+      "in_list_view": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "source_key",
+      "label": "Source Key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "upstream_id",
+      "label": "Upstream Id",
+      "fieldtype": "Small Text",
+      "read_only": 1
+    },
+    {
+      "fieldname": "activity_type",
+      "label": "Activity Type",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "upstream_status",
+      "label": "Upstream Status",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "primary_amount",
+      "label": "Primary Amount",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "secondary_amount",
+      "label": "Secondary Amount",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "needs_review",
+      "label": "Needs Review",
+      "fieldtype": "Check",
+      "default": "1",
+      "in_list_view": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "review_note",
+      "label": "Review Note",
+      "fieldtype": "Small Text",
+      "read_only": 1
+    },
+    {
+      "fieldname": "payload",
+      "label": "Payload",
+      "fieldtype": "Code",
+      "options": "JSON",
+      "read_only": 1
+    },
+    {
+      "fieldname": "payload_hash",
+      "label": "Payload Hash",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "last_seen",
+      "label": "Last Seen",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    }
+  ],
+  "field_order": [
+    "connection",
+    "source_key",
+    "upstream_id",
+    "activity_type",
+    "upstream_status",
+    "primary_amount",
+    "secondary_amount",
+    "needs_review",
+    "review_note",
+    "payload",
+    "payload_hash",
+    "last_seen"
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "report": 1,
+      "export": 1
+    }
+  ],
+  "track_changes": 0,
+  "sort_field": "modified",
+  "sort_order": "DESC"
+}

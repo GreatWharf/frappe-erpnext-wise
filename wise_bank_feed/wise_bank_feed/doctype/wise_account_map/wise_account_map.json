@@ -1,0 +1,119 @@
+{
+  "doctype": "DocType",
+  "name": "Wise Account Map",
+  "module": "Wise Bank Feed",
+  "autoname": "hash",
+  "engine": "InnoDB",
+  "fields": [
+    {
+      "fieldname": "connection",
+      "label": "Connection",
+      "fieldtype": "Link",
+      "options": "Wise Connection",
+      "reqd": 1,
+      "in_list_view": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "balance_id",
+      "label": "Balance Id",
+      "fieldtype": "Data",
+      "reqd": 1,
+      "in_list_view": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "Link",
+      "options": "Currency",
+      "reqd": 1,
+      "in_list_view": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "account_name",
+      "label": "Account Name",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "balance_type",
+      "label": "Balance Type",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "investment_state",
+      "label": "Investment State",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "reported_balance",
+      "label": "Reported Balance",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "available",
+      "label": "Available",
+      "fieldtype": "Check",
+      "default": "1",
+      "read_only": 1
+    },
+    {
+      "fieldname": "bank_account",
+      "label": "Bank Account",
+      "fieldtype": "Link",
+      "options": "Bank Account",
+      "description": "Leave empty to skip this account. Map it later."
+    },
+    {
+      "fieldname": "enabled",
+      "label": "Enabled",
+      "fieldtype": "Check",
+      "default": "0"
+    },
+    {
+      "fieldname": "cursor_at",
+      "label": "Cursor At",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "source_key",
+      "label": "Source Key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "hidden": 1,
+      "read_only": 1
+    }
+  ],
+  "field_order": [
+    "connection",
+    "balance_id",
+    "currency",
+    "account_name",
+    "balance_type",
+    "investment_state",
+    "reported_balance",
+    "available",
+    "bank_account",
+    "enabled",
+    "cursor_at",
+    "source_key"
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "report": 1,
+      "export": 1,
+      "write": 1
+    }
+  ],
+  "track_changes": 0,
+  "sort_field": "modified",
+  "sort_order": "DESC"
+}

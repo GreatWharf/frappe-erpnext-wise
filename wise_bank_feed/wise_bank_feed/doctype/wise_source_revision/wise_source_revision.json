@@ -1,0 +1,67 @@
+{
+  "doctype": "DocType",
+  "name": "Wise Source Revision",
+  "module": "Wise Bank Feed",
+  "autoname": "hash",
+  "engine": "InnoDB",
+  "fields": [
+    {
+      "fieldname": "connection",
+      "label": "Connection",
+      "fieldtype": "Link",
+      "options": "Wise Connection",
+      "read_only": 1
+    },
+    {
+      "fieldname": "source_doctype",
+      "label": "Source Doctype",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "source_name",
+      "label": "Source Name",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "revision_key",
+      "label": "Revision Key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "payload",
+      "label": "Payload",
+      "fieldtype": "Code",
+      "options": "JSON",
+      "read_only": 1
+    },
+    {
+      "fieldname": "observed_at",
+      "label": "Observed At",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    }
+  ],
+  "field_order": [
+    "connection",
+    "source_doctype",
+    "source_name",
+    "revision_key",
+    "payload",
+    "observed_at"
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "report": 1,
+      "export": 1
+    }
+  ],
+  "track_changes": 0,
+  "sort_field": "modified",
+  "sort_order": "DESC"
+}

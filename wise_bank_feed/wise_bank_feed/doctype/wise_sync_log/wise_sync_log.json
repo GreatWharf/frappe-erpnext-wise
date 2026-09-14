@@ -1,0 +1,60 @@
+{
+  "doctype": "DocType",
+  "name": "Wise Sync Log",
+  "module": "Wise Bank Feed",
+  "autoname": "hash",
+  "engine": "InnoDB",
+  "fields": [
+    {
+      "fieldname": "connection",
+      "label": "Connection",
+      "fieldtype": "Link",
+      "options": "Wise Connection",
+      "in_list_view": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "result",
+      "label": "Result",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "message",
+      "label": "Message",
+      "fieldtype": "Small Text",
+      "read_only": 1
+    },
+    {
+      "fieldname": "activities",
+      "label": "Activities",
+      "fieldtype": "Int",
+      "read_only": 1
+    },
+    {
+      "fieldname": "bookings",
+      "label": "Bookings",
+      "fieldtype": "Int",
+      "read_only": 1
+    }
+  ],
+  "field_order": [
+    "connection",
+    "result",
+    "message",
+    "activities",
+    "bookings"
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "report": 1,
+      "export": 1
+    }
+  ],
+  "track_changes": 0,
+  "sort_field": "modified",
+  "sort_order": "DESC"
+}
