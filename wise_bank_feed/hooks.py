@@ -22,6 +22,7 @@ after_migrate = "wise_bank_feed.install.after_migrate"
 before_uninstall = "wise_bank_feed.install.before_uninstall"
 scheduler_events = {"cron": {"*/15 * * * *": ["wise_bank_feed.sync.schedule"]}}
 doc_events = {
+    "Desktop Layout": {"before_validate": "wise_bank_feed.navigation.ensure_layout_icon"},
     "Bank Transaction": {
         "validate": "wise_bank_feed.guards.validate",
         "before_update_after_submit": "wise_bank_feed.guards.validate",

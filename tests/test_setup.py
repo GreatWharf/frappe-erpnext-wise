@@ -105,3 +105,21 @@ def test_unavailable_account_cannot_be_enabled(setup, flow):
     flow.seed("Wise Account Map", "map", connection="conn", available=0)
     with pytest.raises(ValueError, match="no longer available"):
         setup.save_mappings("conn", [{"name": "map", "bank_account": "bank"}])
+
+
+def test_saving_stale_layout_keeps_wise_available(flow, monkeypatch):
+    import json
+    from types import SimpleNamespace
+
+    monkeypatch.delitem(sys.modules, "wise_bank_feed.navigation", raising=False)
+    navigation = importlib.import_module("wise_bank_feed.navigation")
+    monkeypatch.setattr(flow.frappe, "get_roles", lambda user=None: ["System Manager"])
+    flow.seed("Desktop Icon", "Wise Bank Feed", label="Wise Bank Feed", standard=1, hidden=0)
+    doc = SimpleNamespace(user="test@example.invalid", layout=json.dumps([{"label": "Accounting", "idx": 1}]))
+    navigation.ensure_layout_icon(doc)
+    result = json.loads(doc.layout)
+    assert [x["label"] for x in result] == ["Accounting", "Wise Bank Feed"]
+    result[-1]["hidden"] = 1
+    doc.layout = json.dumps(result)
+    navigation.ensure_layout_icon(doc)
+    assert json.loads(doc.layout)[-1]["hidden"] == 1

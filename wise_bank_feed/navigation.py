@@ -68,7 +68,7 @@ def ensure_navigation():
             continue
         try:
             layout = json.loads(saved.layout or "[]")
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             continue
         if not isinstance(layout, list):
             continue
@@ -77,3 +77,38 @@ def ensure_navigation():
             frappe.db.set_value("Desktop Layout", saved.name, "layout", json.dumps(updated))
     frappe.cache.delete_key("desktop_icons")
     frappe.cache.delete_key("bootinfo")
+
+
+def ensure_layout_icon(doc, method=None):
+    """Keep old browser layouts from dropping the installed app; retain explicit hiding."""
+    import json
+
+    from wise_bank_feed.navigation_data import merge_home_icon
+
+    if "System Manager" not in frappe.get_roles(doc.user):
+        return
+    if not frappe.db.exists("Desktop Icon", "Wise Bank Feed"):
+        return
+    try:
+        layout = json.loads(doc.layout or "[]")
+    except ValueError, TypeError:
+        return
+    if not isinstance(layout, list):
+        return
+    source = frappe.get_doc("Desktop Icon", "Wise Bank Feed")
+    fields = (
+        "label",
+        "name",
+        "app",
+        "icon_type",
+        "link_type",
+        "link",
+        "link_to",
+        "logo_url",
+        "standard",
+        "hidden",
+        "parent_icon",
+        "idx",
+    )
+    icon = {field: source.get(field) for field in fields}
+    doc.layout = json.dumps(merge_home_icon(layout, icon))
