@@ -20,39 +20,26 @@ Wise Bank Feed brings your Wise Business activity into ERPNext so you can review
 - Reconcile approved entries using ERPNext’s normal banking tools.
 - Keep the connection read-only: ERPNext cannot send payments through this app.
 
-## Activity review, explained simply
+## Wise access and limitations
 
-Wise activity sync is the default and recommended option. It brings in recent activity for you to review before it becomes an ERPNext Bank Transaction. This gives you a chance to confirm the amount, date, fees, and account first.
+You need a Wise Business account and a **read-only personal API token**. Wise controls which data each account and region can provide, so the available history and features can vary. See [Wise's personal-token limits](https://docs.wise.com/guides/developer/auth-and-security/personal-api-token) before subscribing.
 
-Some Wise accounts also support automatic statements. Availability depends on Wise and the account connected to your token. UK and European accounts should use Activity Review.
+**Activity Review** is the default and most broadly available option. It brings recent Wise activity into ERPNext for you to check before creating a Bank Transaction. A successful activity response does not guarantee that every historical ledger entry is available.
 
-## What you need
+**Automatic Statements** are more limited. With personal tokens, Wise currently supports statement access only for accounts based in the **United States, Canada, Australia, New Zealand, Singapore, and Malaysia**. Wise may also require extra authentication for statement access. UK and European accounts should use Activity Review.
 
-- Frappe and ERPNext v16.
-- A Wise Business read-only API token.
-- An ERPNext System Manager account for the initial setup.
+You also need ERPNext v16 and an ERPNext System Manager account for the first connection.
 
 ## Getting started
 
-1. Install the app on your ERPNext site.
+1. Install the app from the Frappe Marketplace.
 2. Open **Wise Bank Feed** from the ERPNext home screen, or open `/desk/wise-setup`.
 3. Enter your company, read-only token, and the date from which you want to review activity.
 4. Choose the Wise business profile shown by the setup guide.
 5. Match the Wise accounts you want to ERPNext Bank Accounts. Leave the rest blank.
 6. Start the feed, then open the activity inbox to review the first results.
 
-The setup guide saves your progress, so you can return to it later. API tokens are stored encrypted on your ERPNext site. Keep your normal database backups and site encryption key safe.
-
-## Installing on a self-hosted bench
-
-```sh
-bench get-app https://github.com/GreatWharf/frappe-erpnext-wise.git
-bench --site YOUR_SITE install-app wise_bank_feed
-bench --site YOUR_SITE migrate
-bench build --app wise_bank_feed
-```
-
-Frappe Cloud users can install the app from the Marketplace once it is approved.
+The setup guide saves your progress, so you can return to it later. API tokens are stored encrypted on your ERPNext site. Keep your normal ERPNext backups and site encryption key safe.
 
 ## How syncing works
 
@@ -67,4 +54,4 @@ The app reads Wise activity and creates standard ERPNext Bank Transactions after
 
 ## License
 
-This project is MIT licensed. Wise and ERPNext names and logos belong to their respective owners. See [logo sources](docs/images/README.md).
+This project is MIT licensed.
