@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.2 — Marketplace static-scan remediation
+
+- Build navigation documents (Workspace sidebar, Desktop Icon) from static Python data instead of reading bundled JSON at runtime. No `open()` calls remain in production code paths; fixtures stay on disk and new tests assert the builders match them exactly.
+- Inline the CI failure-tail annotation into the workflow shell step and remove the `scripts/run_ci.py` subprocess wrapper. No dynamic process execution remains.
+- Add navigation test coverage (`tests/test_navigation_data.py`). No banking logic or schema changes.
+
 ## 0.3.1 — Marketplace version-range correction
 
 - Change the Frappe compatibility ceiling from `<17.0.0-dev` to the stable `<17.0.0` required by Frappe Cloud's range validator. v16 support is unchanged.

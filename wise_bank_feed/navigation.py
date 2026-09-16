@@ -10,14 +10,20 @@ def ensure_navigation():
     """Add entry points after standard navigation sync; preserve existing customizations."""
     import json
 
-    from wise_bank_feed.navigation_data import merge_home_icon
+    from wise_bank_feed.navigation_data import (
+        desktop_icon_document,
+        merge_home_icon,
+        workspace_sidebar_document,
+    )
 
     # after_install runs before Frappe's standard navigation sync on a fresh site.
-    for kind, doctype in (("workspace_sidebar", "Workspace Sidebar"), ("desktop_icon", "Desktop Icon")):
+    # Documents come from static Python builders (no runtime filesystem access).
+    for doctype, builder in (
+        ("Workspace Sidebar", workspace_sidebar_document),
+        ("Desktop Icon", desktop_icon_document),
+    ):
         if not frappe.db.exists(doctype, "Wise Bank Feed"):
-            path = frappe.get_app_path("wise_bank_feed", kind, "wise_bank_feed.json")
-            with open(path) as source:
-                frappe.get_doc(json.load(source)).insert(ignore_permissions=True)
+            frappe.get_doc(builder()).insert(ignore_permissions=True)
 
     if frappe.db.exists("Workspace Sidebar", "Banking"):
         sidebar = frappe.get_doc("Workspace Sidebar", "Banking")
