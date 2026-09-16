@@ -10,7 +10,7 @@ The tests use mocked API responses and a lightweight Frappe boundary. They do no
 
 ## Release 0.3.0 checks
 
-On 16 September 2026, the local Python 3.14 run passed **100 offline tests** and **11 Node UI behavior tests**. These exercise context-manager cleanup, inclusion without unlinking booked accounts, selected-connection routing, grouped actions, and dirty/in-flight guards. They are not a live-browser screenshot review.
+On 16 September 2026, the local Python 3.14 run passed **105 offline tests** and **11 Node UI behavior tests**. These exercise context-manager cleanup, inclusion without unlinking booked accounts, selected-connection routing, grouped actions, and dirty/in-flight guards. They are not a live-browser screenshot review.
 
 Reproduce from the repository root:
 

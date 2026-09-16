@@ -8,24 +8,33 @@ from frappe.tests import IntegrationTestCase
 
 from wise_bank_feed.core import key
 from wise_bank_feed.importer import bank_entry, new
-
-EXTRA_TEST_RECORD_DEPENDENCIES = ["Company"]
+from wise_bank_feed.tests import setup_test_company
 
 
 class TestWiseIntegration(IntegrationTestCase):
+    company = "_Test Wise Feed"
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        frappe.set_user("Administrator")
+        setup_test_company(cls.company, "TWF")
+
     def setUp(self):
         super().setUp()
+        # Keep each test's connections, mappings and imported rows rollbackable.
+        self.addCleanup(frappe.db.rollback)
         frappe.set_user("Administrator")
         suffix = uuid4().hex[:10]
-        self.currency = frappe.get_value("Company", "_Test Company", "default_currency")
+        self.currency = frappe.get_value("Company", self.company, "default_currency")
         parent = frappe.get_value(
-            "Account", {"company": "_Test Company", "is_group": 1, "root_type": "Asset"}, "name"
+            "Account", {"company": self.company, "is_group": 1, "root_type": "Asset"}, "name"
         )
         account = frappe.get_doc(
             dict(
                 doctype="Account",
                 account_name="Wise " + suffix,
-                company="_Test Company",
+                company=self.company,
                 parent_account=parent,
                 is_group=0,
                 account_type="Bank",
@@ -39,7 +48,7 @@ class TestWiseIntegration(IntegrationTestCase):
                 account_name="Wise " + suffix,
                 bank=bank.name,
                 account=account.name,
-                company="_Test Company",
+                company=self.company,
                 is_company_account=1,
             )
         ).insert()
@@ -47,7 +56,7 @@ class TestWiseIntegration(IntegrationTestCase):
             dict(
                 doctype="Wise Connection",
                 connection_name="Wise Test " + suffix,
-                company="_Test Company",
+                company=self.company,
                 environment="Sandbox",
                 api_token="synthetic-offline-token",
                 profile_id=str(int(suffix, 16)),
