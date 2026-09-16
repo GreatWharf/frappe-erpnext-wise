@@ -124,10 +124,18 @@ def save_mappings(connection, mappings):
         if m.connection != c.name:
             frappe.throw("This account belongs to another connection.")
         bank = row.get("bank_account") or None
-        if bank and not m.available:
+        # Older cached setup pages omit enabled; keep their blank-to-skip behavior safe.
+        enabled = row.get("enabled", int(bool(bank)))
+        if enabled not in (0, 1, "0", "1"):
+            frappe.throw("Invalid account selection.")
+        enabled = int(enabled)
+        if enabled and not m.available:
             frappe.throw("This Wise account is no longer available. Leave it skipped.")
-        m.bank_account = bank
-        m.enabled = int(bool(bank))
+        if enabled and not bank:
+            frappe.throw("Select a Bank Account for each enabled Wise account.")
+        # Skipping is not unlinking: booked mappings are immutable audit identity.
+        m.bank_account = bank or (m.bank_account if not enabled else None)
+        m.enabled = enabled
         m.save()  # Existing validation checks currency, company, ledger and booking history.
     return state(c.name)
 

@@ -58,7 +58,8 @@
     }
     function tools() {
       const links = $('<div class="wise-tools">').appendTo(root);
-      [['Activity inbox', 'Wise Activity'], ['Connections', 'Wise Connection'], ['Sync logs', 'Wise Sync Log']].forEach(([label, dt]) => {
+      const inbox = current && current.mode === 'Statements' ? ['Booking records', 'Wise Booking'] : ['Activity inbox', 'Wise Activity'];
+      [inbox, ['Connections', 'Wise Connection'], ['Sync logs', 'Wise Sync Log']].forEach(([label, dt]) => {
         $('<a href="#">').text(__(label)).on('click', e => {e.preventDefault(); frappe.set_route('List', dt, current && dt !== 'Wise Connection' ? {connection: current.name} : {});}).appendTo(links);
       });
       button(links, 'New connection', async () => { current = null; accounts = []; profiles = []; render(0); });
@@ -126,23 +127,29 @@
       button(actions, 'Refresh profiles', async () => {profiles = await call('profiles', {connection:current.name}); render(1);});
     }
     function accountsView(card) {
-      heading(card, 'Choose the accounts you want', 'Link each Wise balance to an ERPNext Bank Account in the same currency. Leave any account blank to skip it.');
+      heading(card, 'Choose the accounts you want', 'Link each Wise balance to an ERPNext Bank Account in the same currency, then select Include in sync. Uncheck it to skip an account without removing its saved mapping.');
       const controls = [];
       accounts.forEach(account => {
         const row = $('<div class="wise-account">').appendTo(card);
         const info = $('<div>').appendTo(row);
         $('<strong>').text(`${account.currency} · ${account.account_name || __('Wise balance')}`).appendTo(info);
         $('<div class="muted">').text(`Balance ID: ${account.balance_id} · ${account.balance_type || ''}`).appendTo(info);
-        $('<div class="muted">').text(account.available ? `${__('Reported balance')}: ${account.reported_balance || '0'} ${account.currency}` : __('No longer available — skip this account.')).appendTo(info);
+        $('<div class="muted">').text(account.available ? `${__('Reported balance')}: ${account.reported_balance || '0'} ${account.currency}` : __('No longer available — skipped. Its saved mapping is retained.')).appendTo(info);
         const target = $('<div>').appendTo(row);
-        const control = field(target, {fieldname:`map_${account.name}`,fieldtype:'Link',options:'Bank Account',label:__('ERPNext Bank Account') + ` (${account.currency})`,default:account.bank_account || '',read_only:!account.available,description:__('Blank = skipped')});
+        const control = field(target, {fieldname:`map_${account.name}`,fieldtype:'Link',options:'Bank Account',label:__('ERPNext Bank Account') + ` (${account.currency})`,default:account.bank_account || '',read_only:!account.available,description:__('Mappings with booking history cannot be changed. Uncheck Include in sync to skip instead.')});
         control.get_query = () => ({filters:{company:current.company,is_company_account:1}});
-        controls.push({name:account.name,control,available:account.available});
+        const enabled = field(target, {fieldname:`enabled_${account.name}`,fieldtype:'Check',label:__('Include in sync'),default:account.available && account.enabled ? 1 : 0,read_only:!account.available});
+        controls.push({name:account.name,control,enabled,available:account.available});
       });
       if (!accounts.length) $('<p>').text(__('No balances found yet. Refresh accounts after adding a balance in Wise.')).appendTo(card);
       const actions = $('<div class="wise-actions">').appendTo(card);
       button(actions, 'Save accounts and continue', async () => {
-        apply(await call('save_mappings', {connection:current.name,mappings:JSON.stringify(controls.map(row => ({name:row.name,bank_account:row.available ? row.control.get_value() || '' : ''})))})); render(3);
+        const mappings = controls.map(row => ({
+          name: row.name,
+          bank_account: row.control.get_value() || '',
+          enabled: row.available ? Number(row.enabled.get_value()) : 0,
+        }));
+        apply(await call('save_mappings', {connection:current.name,mappings:JSON.stringify(mappings)})); render(3);
       }, true);
       button(actions, 'Refresh accounts', async () => {
         await frappe.call({method:'wise_bank_feed.api.discover_accounts',args:{connection:current.name}});
@@ -152,28 +159,44 @@
     }
     function syncView(card) {
       const mapped = accounts.filter(a => a.enabled && a.available && a.bank_account);
-      if (current.enabled) $('<span class="wise-success">').text(__('Activity sync enabled')).appendTo(card);
-      heading(card, current.enabled ? 'Your Wise feed is connected' : 'Ready for your first sync', 'Activity syncs every 15 minutes. Review booked details in the inbox to create Bank Transactions for reconciliation.');
+      const statements = current.mode === 'Statements';
+      if (current.enabled) $('<span class="wise-success">').text(__(statements ? 'Statement sync enabled' : 'Activity sync enabled')).appendTo(card);
+      heading(card, current.enabled ? 'Your Wise feed is connected' : 'Ready to sync', statements
+        ? 'Statements sync every 15 minutes and create Bank Transactions automatically. Statement access depends on your Wise account region and token.'
+        : 'Activity syncs every 15 minutes. Review booked details in the inbox to create Bank Transactions for reconciliation.');
       $('<p class="muted">').text(`${mapped.length} ${__('accounts selected')} · ${__('History from')} ${current.start_date}`).appendTo(card);
       mapped.forEach(a => $('<div class="wise-summary">').html(`<strong>${esc(a.currency)} · ${esc(a.account_name || '')}</strong><br><span class="muted">${esc(a.bank_account)}</span>`).appendTo(card));
       if (!mapped.length) $('<p>').text(__('Go back and map at least one account to start syncing.')).appendTo(card);
       if (current.last_success) $('<p class="muted">').text(`${__('Last successful sync')}: ${current.last_success}`).appendTo(card);
       if (current.status) $('<p class="muted">').text(current.status).appendTo(card);
       const actions = $('<div class="wise-actions">').appendTo(card);
-      button(actions, current.enabled ? 'Sync now' : 'Start activity sync', async () => {
-        apply(await call('start', {connection:current.name})); render(3); frappe.show_alert({message:__('Sync queued. Transactions will appear in the activity inbox.'),indicator:'green'});
+      button(actions, current.enabled ? 'Sync now' : (statements ? 'Start statement sync' : 'Start activity sync'), async () => {
+        apply(await call('start', {connection:current.name})); render(3);
+        frappe.show_alert({message:__(statements
+          ? 'Sync queued. Imported entries will appear in Bank Transactions; check booking records and Sync logs.'
+          : 'Sync queued. Activities will appear in the inbox for review.'),indicator:'green'});
       }, true);
-      if (current.enabled) button(actions, 'Open activity inbox', async () => {frappe.set_route('List','Wise Activity',{connection:current.name});});
+      if (current.enabled) button(actions, statements ? 'Open booking records' : 'Open activity inbox', async () => {
+        frappe.set_route('List', statements ? 'Wise Booking' : 'Wise Activity', {connection:current.name});
+      });
       button(actions, current.enabled ? 'Pause and edit accounts' : 'Back to accounts', async () => {
         if (current.enabled) apply(await call('pause', {connection:current.name})); render(2);
       });
       button(actions, 'Refresh status', async () => {apply(await call('state', {connection:current.name})); render(3);});
     }
     render(0);
-    action(async () => {
+    wrapper.wise_setup_show = () => action(async () => {
+      const options = frappe.route_options || {};
+      frappe.route_options = null;
       saved = await call('connections');
-      if (saved.length === 1) await resume(saved[0].name);
+      if (options.connection) await resume(options.connection);
+      else if (options.new_connection) { current = null; accounts = []; profiles = []; render(0); }
+      else if (current) await resume(current.name);
+      else if (saved.length === 1) await resume(saved[0].name);
       else render(0);
     });
+  };
+  frappe.pages['wise-setup'].on_page_show = function(wrapper) {
+    return wrapper.wise_setup_show();
   };
 })();

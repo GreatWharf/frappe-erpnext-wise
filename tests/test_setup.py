@@ -2,6 +2,9 @@ import importlib
 import sys
 
 import pytest
+from test_client import Response, Session
+
+from wise_bank_feed.client import WiseError
 
 
 @pytest.fixture
@@ -34,12 +37,55 @@ def test_mapping_changes_require_pause(setup, flow):
         setup.save_mappings("conn", [])
 
 
-def test_unmapped_accounts_are_disabled(setup, flow):
+@pytest.mark.parametrize("available", [0, 1])
+@pytest.mark.parametrize("bank_account", ["bank", ""])
+def test_skipping_booked_account_preserves_mapping(setup, flow, monkeypatch, available, bank_account):
     flow.db.rows["Wise Connection", "conn"]["enabled"] = 0
-    flow.seed("Wise Account Map", "map", connection="conn", available=1, enabled=1, bank_account="bank")
-    setup.save_mappings("conn", [{"name": "map", "bank_account": ""}])
+    flow.seed(
+        "Wise Account Map",
+        "map",
+        connection="conn",
+        currency="GBP",
+        available=available,
+        enabled=1,
+        bank_account="bank",
+    )
+    flow.seed("Wise Booking", "booking", account_map="map", connection="conn")
+    original_save = flow.Doc.save
+
+    def validated_save(doc, **kwargs):
+        if doc.doctype == "Wise Account Map":
+            # The storage double normally skips controllers; exercise the real historical guard here.
+            flow.documents.AccountMap.validate(doc)
+        return original_save(doc, **kwargs)
+
+    monkeypatch.setattr(flow.Doc, "save", validated_save)
+    setup.save_mappings("conn", [{"name": "map", "bank_account": bank_account, "enabled": 0}])
+    assert flow.db.rows["Wise Account Map", "map"]["enabled"] == 0
+    assert flow.db.rows["Wise Account Map", "map"]["bank_account"] == "bank"
+
+
+def test_unmapped_accounts_can_remain_skipped(setup, flow):
+    flow.db.rows["Wise Connection", "conn"]["enabled"] = 0
+    flow.seed("Wise Account Map", "map", connection="conn", available=1, enabled=0)
+    setup.save_mappings("conn", [{"name": "map", "bank_account": "", "enabled": 0}])
     assert flow.db.rows["Wise Account Map", "map"]["enabled"] == 0
     assert not flow.db.rows["Wise Account Map", "map"]["bank_account"]
+
+
+def test_enabled_account_requires_a_mapping(setup, flow):
+    flow.db.rows["Wise Connection", "conn"]["enabled"] = 0
+    flow.seed("Wise Account Map", "map", connection="conn", available=1, enabled=0)
+    with pytest.raises(ValueError, match="Bank Account"):
+        setup.save_mappings("conn", [{"name": "map", "bank_account": "", "enabled": 1}])
+
+
+def test_saved_disabled_mapping_can_be_reenabled(setup, flow):
+    flow.db.rows["Wise Connection", "conn"]["enabled"] = 0
+    flow.seed("Wise Account Map", "map", connection="conn", available=1, enabled=0, bank_account="bank")
+    setup.save_mappings("conn", [{"name": "map", "bank_account": "bank", "enabled": 1}])
+    assert flow.db.rows["Wise Account Map", "map"]["enabled"] == 1
+    assert flow.db.rows["Wise Account Map", "map"]["bank_account"] == "bank"
 
 
 def test_start_requires_selected_accounts(setup, flow):
@@ -81,23 +127,32 @@ def test_state_never_returns_token(setup, flow):
     assert "never-return-this" not in repr(result)
 
 
-def test_bad_token_does_not_create_connection(setup, flow, monkeypatch):
-    class BadClient:
-        def __init__(self, *args):
-            pass
+def test_connect_uses_real_client_and_closes_session(setup, flow, monkeypatch):
+    import requests
 
-        def __enter__(self):
-            raise ValueError("Wise HTTP 401")
-
-        def __exit__(self, *args):
-            pass
-
+    session = Session([Response([{"id": 12, "type": "business", "details": {"name": "Wharf Ltd"}}])])
+    monkeypatch.setattr(requests, "Session", lambda: session)
     flow.seed("Company", "Company A")
-    monkeypatch.setattr(setup, "WiseClient", BadClient)
+    result = setup.connect("Company A", "offline-test-token", "2026-09-01")
+    connection = flow.db.rows["Wise Connection", result["connection"]]
+    assert connection["company"] == "Company A"
+    assert connection["enabled"] == 0
+    assert result["profiles"] == [{"id": "12", "label": "Wharf Ltd"}]
+    assert "offline-test-token" not in repr(result)
+    assert session.closed
+
+
+def test_bad_token_does_not_create_connection(setup, flow, monkeypatch):
+    import requests
+
+    session = Session([Response({}, 401)])
+    monkeypatch.setattr(requests, "Session", lambda: session)
+    flow.seed("Company", "Company A")
     before = len(flow.rows("Wise Connection"))
-    with pytest.raises(ValueError, match="401"):
-        setup.connect("Company A", "invalid-token", "2026-09-01")
+    with pytest.raises(WiseError, match="401"):
+        setup.connect("Company A", "invalid-test-token", "2026-09-01")
     assert len(flow.rows("Wise Connection")) == before
+    assert session.closed
 
 
 def test_unavailable_account_cannot_be_enabled(setup, flow):

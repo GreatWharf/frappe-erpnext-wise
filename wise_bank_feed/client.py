@@ -27,6 +27,12 @@ class WiseClient:
         self.session = session or requests.Session()
         self.session.trust_env = False
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
     def close(self):
         self.session.close()
 

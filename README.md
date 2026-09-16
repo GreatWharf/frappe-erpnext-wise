@@ -36,7 +36,7 @@ You also need ERPNext v16 and an ERPNext System Manager account for the first co
 2. Open **Wise Bank Feed** from the ERPNext home screen, or open `/desk/wise-setup`.
 3. Enter your company, read-only token, and the date from which you want to review activity.
 4. Choose the Wise business profile shown by the setup guide.
-5. Match the Wise accounts you want to ERPNext Bank Accounts. Leave the rest blank.
+5. Select the Wise accounts you want and match them to ERPNext Bank Accounts. Skip the rest without removing any existing account links.
 6. Start the feed, then open the activity inbox to review the first results.
 
 The setup guide saves your progress, so you can return to it later. API tokens are stored encrypted on your ERPNext site. Keep your normal ERPNext backups and site encryption key safe.
@@ -49,6 +49,7 @@ The app reads Wise activity and creates standard ERPNext Bank Transactions after
 
 - [Setup and operations](docs/operations.md)
 - [Troubleshooting](docs/operations.md#upgrades-troubleshooting-and-uninstall)
+- [Release notes and upgrade](CHANGELOG.md)
 - [Verification notes](docs/verification.md)
 - [Report an issue](https://github.com/GreatWharf/frappe-erpnext-wise/issues) — never include credentials or financial data.
 

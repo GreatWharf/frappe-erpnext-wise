@@ -1,1 +1,5 @@
+include README.md LICENSE CHANGELOG.md pyproject.toml
 recursive-include wise_bank_feed *.json *.js *.txt *.svg *.png
+recursive-include docs *.md *.svg *.png
+recursive-include tests *.py *.json *.js
+recursive-include scripts *.py

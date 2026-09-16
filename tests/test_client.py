@@ -15,13 +15,32 @@ class Response:
 class Session:
     def __init__(self, rows):
         self.rows, self.calls = iter(rows), []
+        self.closed = False
 
     def get(self, url, **kwargs):
         self.calls.append((url, kwargs))
         return next(self.rows)
 
     def close(self):
-        pass
+        self.closed = True
+
+
+def test_context_manager_returns_client_and_closes_session():
+    session = Session([Response([{"id": 12, "type": "business"}])])
+    client = WiseClient("offline-test-token", session=session)
+    with client as connected:
+        assert connected is client
+        assert connected.profiles()[0]["id"] == 12
+        assert not session.closed
+    assert session.closed
+
+
+def test_context_manager_closes_session_without_suppressing_error():
+    session = Session([Response({}, 401)])
+    with pytest.raises(WiseError, match="401"):
+        with WiseClient("offline-test-token", session=session) as client:
+            client.profiles()
+    assert session.closed
 
 
 def test_cursor_pagination_and_readonly():
