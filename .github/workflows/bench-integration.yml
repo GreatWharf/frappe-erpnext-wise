@@ -57,4 +57,4 @@ jobs:
           bench --site test.localhost migrate
       - name: Test actual ERPNext Bank Transaction lifecycle
         working-directory: ${{ runner.temp }}/feed-bench
-        run: bench --site test.localhost run-tests --app wise_bank_feed --module wise_bank_feed.tests.test_integration
+        run: python "$GITHUB_WORKSPACE/scripts/run_ci.py" bench --site test.localhost run-tests --app wise_bank_feed --module wise_bank_feed.tests.test_integration
