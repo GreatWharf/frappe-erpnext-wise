@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.1 — Marketplace version-range correction
+
+- Change the Frappe compatibility ceiling from `<17.0.0-dev` to the stable `<17.0.0` required by Frappe Cloud's range validator. v16 support is unchanged.
+- Add regression checks for the compatibility range and matching package/app versions. No banking logic or schema changes.
+- Use tag `v0.3.1`, or refresh the existing `release/0.3.0` branch in Frappe Cloud. The older `v0.3.0` tag remains unchanged and contains the rejected metadata.
+
 ## 0.3.0 — 2026-09-16
 
 Release candidate for Frappe/ERPNext v16, Python 3.14 and MariaDB. Existing version tags are retained.
