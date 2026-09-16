@@ -84,7 +84,7 @@ def desktop_icon_document():
         "app": "wise_bank_feed",
         "standard": 1,
         "hidden": 0,
-        "logo_url": "/assets/wise_bank_feed/images/wise-icon.png",
+        "logo_url": "/assets/wise_bank_feed/images/wise-icon.svg",
         "roles": [{"role": "System Manager"}],
     }
 
